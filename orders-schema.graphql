@@ -3,35 +3,20 @@ extend schema
     [
       "@key",
       "@tag",
+      "@shareable"
+      "@authenticated",
+      "@requiresScopes",
     ]
   )
 
 type Query {
-  """
-  Get a specific order by id. Meant to be used for a detailed view of an order
-  """
-  order(id: ID!): Order
+  order(id: ID!): Order @authenticated
 }
 
-"""
-Returns information about a specific purchase
-"""
 type Order @key(fields: "id") {
-  """
-  Each order has a unique id which is separate from the user or items they bought
-  """
   id: ID!
-
-  """
-  The user who made the purchase
-  """
-  buyer: User!
-
-  """
-  A list of all the items they purchased. This is the Variants, not the Products so we know exactly which
-  product and which size/color/feature was bought
-  """
-  items: [ProductVariant!]!
+  buyer: User! @requiresScopes(scopes: [["order:buyer"]])
+  items: [ProductVariant!]! @requiresScopes(scopes: [["order:items"]])
 }
 
 type User @key(fields: "id") {
